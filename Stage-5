@@ -1,0 +1,46 @@
+pipeline{
+    
+agent any
+
+tools{
+maven "maven3.9.6"
+}
+
+stages{
+    
+stage('Checkoutcode'){
+steps{
+git credentialsId: '0ade65c1-61b4-4414-83fb-90faeb9244d9', url: 'https://github.com/Starpower/maven-web-application-new.git'}
+}   
+
+
+stage('Build'){
+steps{
+sh "mvn clean package"    
+}
+}
+
+
+stage('Executesonarqubereport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+
+stage('UploadArtifactintoNexus'){
+steps{
+sh "mvn clean deploy"
+}
+}
+stage('Application Deploy into Tomcat'){
+steps{
+sshagent(['f46957b7-1f50-4ff5-8ea6-54b43f40d023']) {
+   sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.35.83://opt/apache-tomcat-9.0.86/webapps"
+}
+}
+ }
+
+
+}//stages closing
+}//pipeline closing
+

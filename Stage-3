@@ -1,0 +1,31 @@
+pipeline{
+    
+agent any
+
+tools{
+maven "maven3.9.6"
+}
+
+stages{
+    
+stage('Code-cloneing'){
+steps{
+git credentialsId: '7d1bd23a-e3c9-4684-82e3-6c531474b516', url: 'https://github.com/Starpower/maven-web-application-new.git'}  
+}
+
+
+stage('Build'){
+steps{
+sh "mvn clean package"    
+}
+}
+
+stage('Executesonarqubereport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+
+
+}//stages closing
+}//pipeline closing

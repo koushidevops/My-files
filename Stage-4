@@ -1,0 +1,38 @@
+pipeline{
+    
+agent any
+
+tools{
+maven "maven3.9.6"
+}
+
+stages{
+    
+stage('Code-cloneing'){
+steps{
+git credentialsId: '0ade65c1-61b4-4414-83fb-90faeb9244d9', url: 'https://github.com/Starpower/maven-web-application-new.git'}
+}
+
+
+stage('Build'){
+steps{
+sh "mvn clean package"    
+}
+}
+
+stage('Executesonarqubereport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+
+
+stage('UploadArtifactintoNexus'){
+steps{
+sh "mvn clean deploy"
+}
+}
+
+
+}//stages closing
+}//pipeline closing
