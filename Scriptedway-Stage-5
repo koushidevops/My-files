@@ -1,0 +1,27 @@
+node{
+    
+def mavenHome = tool name: "maven3.9.6"    
+
+stage('Checkoutcode'){
+git credentialsId: '0ade65c1-61b4-4414-83fb-90faeb9244d9', url: 'https://github.com/Starpower/maven-web-application-new.git'
+}  
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage('Ecexutivesonarreport'){
+sh "${mavenHome}/bin/mvn clean sonar:sonar"
+}
+
+stage('UploadArtifactinto-Nexus'){
+sh "${mavenHome}/bin/mvn clean deploy"
+}
+
+stage('DeployAppinto-Tomcat'){
+sshagent(['02f32120-574f-4834-81d9-c5ab9e16a71d']) {
+    sh "scp -o StrictHostkeyChecking=no target/maven-web-application.war ec2-user@172.31.35.83:/opt/apache-tomcat-9.0.86/webapps/" 
+}
+}
+
+}

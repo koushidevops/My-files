@@ -1,0 +1,6 @@
+node{
+
+
+stage('CheckOutCode'){
+git credentialsId: '0ade65c1-61b4-4414-83fb-90faeb9244d9', url: 'https://github.com/Starpower/maven-web-application-new.git'}
+}
