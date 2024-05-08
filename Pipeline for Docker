@@ -1,0 +1,35 @@
+node{
+
+def mavenHome = tool name: "maven3.9.6"    
+
+stage('Checkoutcode'){
+git credentialsId: '3968c7b0-a32d-4553-b9d0-3701c4933f34', url: 'https://github.com/Dheeravathshiva/java-web-app-docker.git'
+}  
+
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage("Build Docker image"){
+    sh "docker build -t dheeravathshiva/maventestapplication:${env.BUILD_NUMBER} ."
+}
+
+stage("Docker Push"){
+    withCredentials([string(credentialsId: 'Dokcerhubpwd3', variable: 'DokerHubPwd')]) { 
+    sh "docker login -u dheeravathshiva -p ${DokerHubPwd}"
+    }
+    sh "docker push dheeravathshiva/maventestapplication:${env.BUILD_NUMBER}"
+}
+
+
+stage("Deploy application as Docker conatiner in Deocker Deployment Server"){
+    sshagent(['JDServer_SSH']) { 
+    
+    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.9.187 docker rm -f maventestapplicationcontainer || true"
+     sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.9.187 docker run -d -p 8080:8080 --name maventestapplicationcontainer dheeravathshiva/maventestapplication:${env.BUILD_NUMBER}"
+} 
+
+}
+
+}
+
