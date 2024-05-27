@@ -42,5 +42,5 @@ sshAgent
 Docker Intsalltion In Deployment Server
 --------------------------------------------
 sudo apt install docker.io -y
-sudo usermod -aG docker jenkins
-sudo systemctl restart jenkins
+sudo usermod -aG docker ubuntu
+
