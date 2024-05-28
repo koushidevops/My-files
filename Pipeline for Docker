@@ -1,35 +1,33 @@
 node{
 
-def mavenHome = tool name: "maven3.9.6"    
+def buildNumber = BUILD_NUMBER
+def mavenHome = tool name: "maven3.9.6"
+stage("Checkoutcode")
 
-stage('Checkoutcode'){
-git credentialsId: '3968c7b0-a32d-4553-b9d0-3701c4933f34', url: 'https://github.com/Dheeravathshiva/java-web-app-docker.git'
-}  
-
+git credentialsId: '770608bc-472e-475c-9709-9d611915d801', url: 'https://github.com/Dheeravathshiva/java-web-app-docker.git'
+    
 stage('Build'){
 sh "${mavenHome}/bin/mvn clean package"
 }
 
 stage("Build Docker image"){
-    sh "docker build -t dheeravathshiva/maventestapplication:${env.BUILD_NUMBER} ."
+    sh "docker build -t dheeravathshiva/java-web-app-docker:${env.BUILD_NUMBER} ."
 }
 
-stage("Docker Push"){
-    withCredentials([string(credentialsId: 'Dokcerhubpwd3', variable: 'DokerHubPwd')]) { 
-    sh "docker login -u dheeravathshiva -p ${DokerHubPwd}"
+stage("Docker Login and Push"){
+    withCredentials([string(credentialsId: 'DokcerHubPwd', variable: 'Dockerhubpassword')]) { 
+    sh "docker login -u dheeravathshiva -p ${Dockerhubpassword}"
     }
-    sh "docker push dheeravathshiva/maventestapplication:${env.BUILD_NUMBER}"
+    sh "docker push dheeravathshiva/java-web-app-docker:${env.BUILD_NUMBER}"
 }
-
 
 stage("Deploy application as Docker conatiner in Deocker Deployment Server"){
-    sshagent(['JDServer_SSH']) { 
+    sshagent(['Docker-Dev_Server_SSH']) { 
     
-    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.9.187 docker rm -f maventestapplicationcontainer || true"
-     sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.9.187 docker run -d -p 8080:8080 --name maventestapplicationcontainer dheeravathshiva/maventestapplication:${env.BUILD_NUMBER}"
+    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.44.144 docker rm -f javawebappcontainer || true"
+     sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.44.144 docker run -d -p 8080:8080 --name javawebappcontainer dheeravathshiva/java-web-app-docker:${env.BUILD_NUMBER}"
 } 
 
 }
 
 }
-
