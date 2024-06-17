@@ -1,1 +1,31 @@
 Create a ubuntu server and Install the Jenkins and Docker
+
+
+
+
+### Pipelini script 
+
+node{
+    
+    def mavenHome = tool name: "maven3.9.6"
+    
+    stage("code checkout"){
+    git credentialsId: 'd4920871-8965-4bde-8741-32dc0a331496', url: 'https://github.com/Starpower/spring-boot-mongo-docker.git'
+    }
+ 
+    stage('Build'){
+    sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+    stage("Build Docker Image"){
+    sh "docker build -t dheeravathshiva/spring-boot-mongo ."
+    }
+    
+    stage("Docker Push"){
+    withCredentials([string(credentialsId: 'DokcerHubPwd', variable: 'Dockerhubpwd')]) {
+    sh "docker login -u dheeravathshiva -p ${DockerHubPwd}"
+    }
+    sh "docker push dheeravathshiva/spring-boot-mongo "
+    }
+    
+}
