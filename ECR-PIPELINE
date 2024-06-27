@@ -1,0 +1,32 @@
+node{
+
+def buildNumber = BUILD_NUMBER
+
+def mavenHome = tool name: "maven3.9.6"
+
+stage("CodeCheckout"){
+git credentialsId: '7e610923-a4a6-47db-9481-037304314604', url: 'https://github.com/Dheeravathshiva/maven-web-application.git'
+}
+
+stage('Maven Clean Package'){
+sh "${mavenHome}/bin/mvn clean package"
+}
+
+stage("Build Docker image"){
+sh "docker build -t 622446939929.dkr.ecr.ap-south-1.amazonaws.com/maven-web-application:${env.BUILD_NUMBER} ."
+}
+
+stage("Docker Push"){
+sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 622446939929.dkr.ecr.ap-south-1.amazonaws.com"
+sh "docker push 622446939929.dkr.ecr.ap-south-1.amazonaws.com/maven-web-application:${env.BUILD_NUMBER}"
+}
+
+stage("Deploy Application"){
+sshagent(['Docker-Dev_Server_SSH']){
+sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.34.154 docker rm maven-web-application || true"
+sh "ssh ubuntu@172.31.34.154 aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 622446939929.dkr.ecr.ap-south-1.amazonaws.com"
+sh "ssh ubuntu@172.31.34.154 docker run -d --name mavenapp -p 8081:8080 622446939929.dkr.ecr.ap-south-1.amazonaws.com/maven-web-application:${env.BUILD_NUMBER}"
+}
+}
+
+}
