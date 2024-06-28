@@ -16,6 +16,7 @@ stage("Build Docker image"){
 sh "docker build -t 622446939929.dkr.ecr.ap-south-1.amazonaws.com/maven-web-application:${env.BUILD_NUMBER} ."
 }
 
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 622446939929.dkr.ecr.ap-south-1.amazonaws.com
 stage("Docker Push"){
 sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 622446939929.dkr.ecr.ap-south-1.amazonaws.com"
 sh "docker push 622446939929.dkr.ecr.ap-south-1.amazonaws.com/maven-web-application:${env.BUILD_NUMBER}"
