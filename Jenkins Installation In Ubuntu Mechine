@@ -29,5 +29,5 @@ sudo systemctl status jenkins
 install docker 
 sudo apt install docker.io -y
 permissions
-sudo useradd -aG docker jenkins
+sudo usermod -aG docker jenkins
 
