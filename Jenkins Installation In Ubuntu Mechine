@@ -3,9 +3,6 @@ Installation of Java
 sudo apt update
 sudo apt install fontconfig openjdk-17-jre
 
-
-
-
 Installation  of Jenkins
 --------------------------------
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
@@ -25,7 +22,8 @@ sudo systemctl start jenkins
 
 sudo systemctl status jenkins
 
-install docker 
+install docker
+
 sudo apt install docker.io -y
 
 permissions
